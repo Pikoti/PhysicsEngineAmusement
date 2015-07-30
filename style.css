@@ -1,0 +1,11 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+#pixi {
+	position: absolute;
+    width: 30px;
+    height: 30px;
+    background: #FF1493;
+}
