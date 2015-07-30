@@ -3,6 +3,15 @@
     padding: 0;
 }
 
+
+#playArea {
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 820px;
+    height: 520px;
+    background: #7FFFD4;	
+}
+
 #pixi {
     position: absolute;
     width: 30px;

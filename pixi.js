@@ -1,6 +1,7 @@
   var pixi = {
                 x: 10, y: 10, 
-                direction: 1,
+                xdirection: 1,
+				ydirection: 1,
                 el: document.getElementById('pixi')
             };
 
@@ -22,8 +23,10 @@
                 // ex: if "left" is pressed, e.which === 37
                 pressed[e.which] = true;
                 switch (e.which) {
-                    case keys.left: pixi.direction = -1; break;
-                    case keys.right: pixi.direction = 1; break;
+                    case keys.left: pixi.xdirection = -1; break;
+                    case keys.right: pixi.xdirection = 1; break;
+                    case keys.up: pixi.ydirection = -1; break;
+                    case keys.down: pixi.ydirection = 1; break;
                 }
             });
 
@@ -46,10 +49,15 @@
 
             function update () {
                 if (pressed[keys.left] || pressed[keys.right]) {
-                    pixi.x += 5 * pixi.direction;
-                    pixi.x = Math.min(1000, pixi.x);
+                    pixi.x += 5 * pixi.xdirection;
+                    pixi.x = Math.min(800, pixi.x);
                     pixi.x = Math.max(10, pixi.x);
                 }
+				if (pressed[keys.up] || pressed[keys.down]) {
+					pixi.y += 5 * pixi.ydirection;
+                    pixi.y = Math.min(500, pixi.y);
+                    pixi.y = Math.max(10, pixi.y);
+				}
             }
 
             // dom part
