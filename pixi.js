@@ -1,7 +1,7 @@
   var pixi = {
                 x: 10, y: 10, 
                 xdirection: 1,
-				ydirection: 1,
+                ydirection: 1,
                 el: document.getElementById('pixi')
             };
 
@@ -53,8 +53,8 @@
                     pixi.x = Math.min(800, pixi.x);
                     pixi.x = Math.max(10, pixi.x);
                 }
-				if (pressed[keys.up] || pressed[keys.down]) {
-					pixi.y += 5 * pixi.ydirection;
+                if (pressed[keys.up] || pressed[keys.down]) {
+                    pixi.y += 5 * pixi.ydirection;
                     pixi.y = Math.min(500, pixi.y);
                     pixi.y = Math.max(10, pixi.y);
 				}
