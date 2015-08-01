@@ -83,7 +83,7 @@ function test(x,v,dt) {
     while(t < 100) {
         t = t + dt;
         rk(x,v,dt);
-	}
+    }
 }
 
 console.log('initial position', x);
