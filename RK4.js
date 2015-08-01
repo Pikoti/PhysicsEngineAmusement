@@ -19,7 +19,7 @@ http://www.cinam.univ-mrs.fr/klein/teach/mip/numeriq/node46.html
 http://www.math.iit.edu/~fass/478578_Chapter_3.pdf //hardcore
 
 here in this linear motion:
-the x and v are take place of the ki
+The x and v take place of the ki
 dt takes place of the h
 
 */
@@ -44,8 +44,6 @@ dt = 1/30;     //timestep 1/30
 function acceleration (x,v,dt) {
 	var a;
 	a = -g*x - mass*v;        //fixed by me here will slow down
-	
-	console.log("a",a);
 	return a;
 }
 
