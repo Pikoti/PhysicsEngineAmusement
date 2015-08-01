@@ -79,7 +79,7 @@ function rk(x,v,a,dt) {
 
 //main-like function 
 function test(x,v,dt) {
-	//for 10 seconds
+    //for 100 seconds
     while(t < 100) {
         t = t + dt;
         rk(x,v,dt);
