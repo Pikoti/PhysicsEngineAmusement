@@ -68,14 +68,14 @@ function rk(x,v,dt) {
 	
 	x3 = x + 0.5 * v2 * dt;
 	v3 = v + 0.5 * a[2].x * dt;
-        acceleration(x3,v3,3,dt/2);
+    acceleration(x3,v3,3,dt/2);
 	
 	x4 = x + v3 * dt;
 	v4 = v + a[3].x * dt;
 	a4 = acceleration(x4,v4,4,dt);
 
 	finalState.xf = x + (dt/6) * (v1 + 2 * v2 + 2 * v3 + v4 ); //final position xf, NB: x = dv/dt
-        finalState.vf = v + (dt/6) * (a[1].x + 2 * a[2].x + 2 * a[3].x + a[4].x); //final velocity vf
+    finalState.vf = v + (dt/6) * (a[1].x + 2 * a[2].x + 2 * a[3].x + a[4].x); //final velocity vf
 }
 
 
