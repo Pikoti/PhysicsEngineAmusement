@@ -39,7 +39,6 @@ v = 3;         //meter per second
 t = 0;         //init time
 dt = 1/30;     //timestep 1/30
 
-
 var a = [];   //acceleration array
  a[1] = {};   //acceleration step 1
  a[2] = {};   //acceleration step 2
@@ -72,7 +71,7 @@ function rk(x,v,dt) {
 	
 	x4 = x + v3 * dt;
 	v4 = v + a[3].x * dt;
-	a4 = acceleration(x4,v4,4,dt);
+	acceleration(x4,v4,4,dt);
 
 	finalState.xf = x + (dt/6) * (v1 + 2 * v2 + 2 * v3 + v4 ); //final position xf, NB: x = dv/dt
     finalState.vf = v + (dt/6) * (a[1].x + 2 * a[2].x + 2 * a[3].x + a[4].x); //final velocity vf
