@@ -34,46 +34,50 @@ var finalState = {}; //the final state
 
 //init for test
 mass = 1;      //kilogram
-x = 0;         //meter
+x = 10;         //meter
 v = 3;         //meter per second
 t = 0;         //init time
 dt = 1/30;     //timestep 1/30
 
 
+var a = [];   //acceleration array
+ a[1] = {};   //acceleration step 1
+ a[2] = {};   //acceleration step 2
+ a[3] = {};   //acceleration step 3
+ a[4] = {};   //acceleration step 4
+
 //acceleration function return the acceleration for a timestep, position and velocity
-function acceleration (x,v,dt) {
-	var a;
-	a = -g * x - mass * v;        //randomly set for tests
-	return a;
+function acceleration (x,v,i,dt) {
+	a[i].x = -g * x - mass * v;        //randomly set for tests
+	return dt;
 }
 
 //return final position and velocity after time dt
-function rk(x,v,a,dt) {
+function rk(x,v,dt) {
 	var x1,x2,x3,x4;        //the x position of the 4 steps 
 	var v1,v2,v3,v4;        //the velocity of the 4 steps
-	var a1,a2,a3,a4;        //the acceleration of the 4 steps
-	
-	dt = 1/30;
 	
 	x1 = x;
 	v1 = v;
-	a1 = acceleration(x1,v1,0);
+	acceleration(x1,v1,1,0);    //init dt = 0 
+	
 	
 	x2 = x + 0.5 * v1 * dt;
-	v2 = v + 0.5 * a1 * dt;
-	a2 = acceleration(x2,v2,dt/2);
+	v2 = v + 0.5 * a[1].x * dt;
+	acceleration(x2,v2,2,dt/2);
 	
 	x3 = x + 0.5 * v2 * dt;
-	v3 = v + 0.5 * a2 * dt;
-	a3 = acceleration(x3,v3,dt/2);
+	v3 = v + 0.5 * a[2].x * dt;
+    acceleration(x3,v3,3,dt/2);
 	
 	x4 = x + v3 * dt;
-	v4 = v + a3 * dt;
-	a4 = acceleration(x4,v4,dt);
-	
+	v4 = v + a[3].x * dt;
+	a4 = acceleration(x4,v4,4,dt);
+
 	finalState.xf = x + (dt/6) * (v1 + 2 * v2 + 2 * v3 + v4 ); //final position xf, NB: x = dv/dt
-	finalState.vf = v + (dt/6) * (a1 + 2 * a2 + 2 * a3 + a4); //final velocity vf
+    finalState.vf = v + (dt/6) * (a[1].x + 2 * a[2].x + 2 * a[3].x + a[4].x); //final velocity vf
 }
+
 
 //main-like function 
 function test(x,v,dt) {
