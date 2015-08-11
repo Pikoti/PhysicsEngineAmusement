@@ -7,11 +7,16 @@ var x = 10;
 var y = 0;
 var vx = 0;
 var vy = 0;
-var dt = 0;          
+var dt = 0;
+var score = 0;
+var A = 0;                                 //angle    
 var previous = getTime();
 var MS_PER_UPDATE = 30;                   //Game time update(new frame) is 30 ms
 var finalState = {};
 var bounds;
+var boundsX;
+var boundsY;
+var got = false;
     
 var a = [];   //acceleration array
  a[1] = {};   //acceleration step 1
@@ -20,6 +25,7 @@ var a = [];   //acceleration array
  a[4] = {};   //acceleration step 4
  
 var el = document.getElementById('pixi');
+var el2 = document.getElementById('catch');
 
  //Init debug
 console.log('initial position', x);
@@ -65,10 +71,10 @@ function pause () {
 //User movement with keyboard
 function userInput() {
 	if (pressed[keys.left] || pressed[keys.right]) {
-	    vx = pressed[keys.left] ? - 200 : 200;
+	    vx = pressed[keys.left] ? - 400 : 400;
     }
 	if (pressed[keys.up] || pressed[keys.down]) {
-		vy = pressed[keys.down] ? -70 : 70;
+		vy = pressed[keys.down] ? -200 : 200;
 	} 
 	if (pressed[keys.space]) {
 			vx = 70;
@@ -108,13 +114,20 @@ function update () {
 	rk(x,y,vx,vy,dt);
 	setData();
 	BoundDetector ();
+	gotDetector ();
 	manageLimits();
 	if (bounds) {
 	    updateVelocity();
 		rk(x,y,finalState.vxf,finalState.vyf,dt);
-	    bounds = false;	
+	    bounds = false;
+	    boundsX = false;
+	    boundsY = false;	
 	    setData();
 	}
+	if (got) {
+		console.log('got', got);
+	}
+	console.log('got', got);
 }
 
 //PHYSICS ENGINE
@@ -124,7 +137,7 @@ function update () {
 //Accelerations engine 
 //Returns global acceleration given time step, position and velocity
 function acceleration (x,y,vx,vy,i,dt) {
-	a[i].x = - mass/1000 * vx/1000 ;        
+	a[i].x = - mass * vx/10 ;        
 	a[i].y = - mass * g;
 	a[i].dt = dt;
 	return a[i];
@@ -190,12 +203,20 @@ function manageLimits () {
 //Detection of collision against bounds
 function BoundDetector () {
 	if (finalState.xf >= 800 || finalState.xf <= 10) {
-		bounds = true;
+		bounds = boundsX = true;
 	}
 	if (finalState.yf >= 560 || finalState.yf <= 70) {
-		bounds = true;
+		bounds = boundsY =  true;
 	}
 }
+
+//detect if collision with the objective
+function gotDetector () {
+	if (x === 600 && y === 200) {
+		got = true;
+	}
+}
+
 
 //COLLISION RESOLUTION
 //Elastic collision Cr = v'/v0, Here Cr = 0,50
@@ -205,14 +226,31 @@ function restitution (v) {
 
 //Set new velocities after collision choc
 function updateVelocity() {
-	finalState.vxf = restitution(finalState.vxf);
-	finalState.vyf = restitution(finalState.vyf);
+	if (boundsY) {
+	    finalState.vxf = finalState.vxf;
+ 	    finalState.vyf = restitution(finalState.vyf);
+	}
+	if (boundsX) {
+ 	    finalState.vxf = restitution(finalState.vxf);
+	    finalState.vyf = finalState.vyf;
+	}
+}
+
+//add score game
+function score() {
+	if (got) {
+		got === false;
+		score += 1;
+	}
 }
 
 //Draws the game 
 function render () {
 	el.style.left = x + 'px';  
 	el.style.bottom = y + 'px';
+	if (got) {
+		el2.style.display = 'none';
+	}
 }
 
 //Final debug

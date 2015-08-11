@@ -18,3 +18,12 @@
     height: 30px;
     background: #FF1493;
 }
+
+#catch {
+	margin-top: 200px;
+    margin-left: 600px;
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: blue;
+}
