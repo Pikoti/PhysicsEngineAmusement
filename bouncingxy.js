@@ -74,11 +74,11 @@ function userInput() {
 	    vx = pressed[keys.left] ? - 400 : 400;
     }
 	if (pressed[keys.up] || pressed[keys.down]) {
-		vy = pressed[keys.down] ? -200 : 200;
+		vy = pressed[keys.down] ? -400 : 400;
 	} 
 	if (pressed[keys.space]) {
-			vx = 70;
-			vy = 70;
+		vx = vx < 0 ? -100 : 100;
+		vy = 100;
 	} 	
 }
 
