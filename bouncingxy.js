@@ -265,9 +265,11 @@ function myRandom(min, max) {
 }
 
 function updatePositionBanana () {
-	    isCaught = false;
-        banana.x = myRandom(10,800);
-        banana.y = myRandom(70,560);
+		if (isCaught) {
+	        isCaught = false;
+            banana.x = myRandom(10,800);
+            banana.y = myRandom(70,560);
+		}
 }
 
 //Draws the game 
@@ -275,12 +277,10 @@ function render () {
 	var el2 = document.getElementById('banana');
 	el.style.left = pinkPixel.x + 'px';  
 	el.style.bottom = pinkPixel.y + 'px';
-	if (isCaught) {
-	    updateRendererBanana();
-	    el2.style.left = banana.x  + 'px';
-	    el2.style.bottom = banana.y + 'px';
-	    console.log('scorer', game.score);
-	}
+	updatePositionBanana();
+	el2.style.left = banana.x  + 'px';
+	el2.style.bottom = banana.y + 'px';
+	console.log('scorer', game.score);
 }
 
 //Final debug
