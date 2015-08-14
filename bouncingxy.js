@@ -16,16 +16,19 @@ var finalState = {};
 var bounds;
 var boundsX;
 var boundsY;
-var got = false;
+var banana = false;
+var xBanana = 600;
+var yBanana = 330;
     
 var a = [];   //acceleration array
  a[1] = {};   //acceleration step 1
  a[2] = {};   //acceleration step 2
  a[3] = {};   //acceleration step 3
  a[4] = {};   //acceleration step 4
+
  
+//DOM part
 var el = document.getElementById('pixi');
-var el2 = document.getElementById('catch');
 
  //Init debug
 console.log('initial position', x);
@@ -71,10 +74,10 @@ function pause () {
 //User movement with keyboard
 function userInput() {
 	if (pressed[keys.left] || pressed[keys.right]) {
-	    vx = pressed[keys.left] ? - 400 : 400;
+	    vx = pressed[keys.left] ? - 100 : 100;
     }
 	if (pressed[keys.up] || pressed[keys.down]) {
-		vy = pressed[keys.down] ? -400 : 400;
+		vy = pressed[keys.down] ? -100 : 100;
 	} 
 	if (pressed[keys.space]) {
 		vx = vx < 0 ? -100 : 100;
@@ -114,7 +117,7 @@ function update () {
 	rk(x,y,vx,vy,dt);
 	setData();
 	BoundDetector ();
-	gotDetector ();
+	bananaDetector ();
 	manageLimits();
 	if (bounds) {
 	    updateVelocity();
@@ -124,10 +127,11 @@ function update () {
 	    boundsY = false;	
 	    setData();
 	}
-	if (got) {
-		console.log('got', got);
+	if (banana) {
+        scoregame();
 	}
-	console.log('got', got);
+	console.log('x', x, 'y', y);
+	console.log('xb',xBanana, 'yb',yBanana);
 }
 
 //PHYSICS ENGINE
@@ -211,9 +215,14 @@ function BoundDetector () {
 }
 
 //detect if collision with the objective
-function gotDetector () {
-	if (x === 600 && y === 200) {
-		got = true;
+function bananaDetector () {
+	var topBanana = yBanana;
+	var botBanana = yBanana - 30;
+	var leftBanana = xBanana;
+	var rightBanana = xBanana + 30;
+	if (y <= topBanana + 20 && y >= botBanana - 20 &&
+    	x >= leftBanana - 20 && x <= rightBanana + 20) {
+		banana = true;
 	}
 }
 
@@ -237,19 +246,38 @@ function updateVelocity() {
 }
 
 //add score game
-function score() {
-	if (got) {
-		got === false;
+function scoregame() {
+	if (banana) {
 		score += 1;
+		console.log('scores',score);
 	}
+}
+
+//Update banana state
+
+// Returns a random integer between min (included) and max (included)
+// Using Math.round() will give you a non-uniform distribution!
+
+function myRandom(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function updateBanana () {
+	    banana = false;
+        xBanana = myRandom(10,800);
+        yBanana = myRandom(70,560);
+        var el2 = document.getElementById('banana');
+	    el2.style.left = xBanana  + 'px';
+	    el2.style.bottom = yBanana + 'px';
 }
 
 //Draws the game 
 function render () {
 	el.style.left = x + 'px';  
 	el.style.bottom = y + 'px';
-	if (got) {
-		el2.style.display = 'none';
+	if (banana) {
+	    updateBanana();
+	    console.log('scorer', score);
 	}
 }
 
