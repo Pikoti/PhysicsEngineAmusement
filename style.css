@@ -5,6 +5,7 @@
 
 
 #playArea {
+	
     margin-top: 10px;
     margin-left: 10px;
     width: 820px;
@@ -20,8 +21,9 @@
 }
 
 #banana {
-	margin-top: 200px;
-    margin-left: 600px;
+	position: absolute;
+	margin-top: 0px;
+    margin-left: 0px;
     position: absolute;
     width: 30px;
     height: 30px;

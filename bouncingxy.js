@@ -2,39 +2,41 @@
 //Init and constants 
 var tid;                                 //timer id
 var g = 9.81;                            //gravity
-var mass = 4;
-var x = 10;
-var y = 0;
-var vx = 0;
-var vy = 0;
-var dt = 0;
-var score = 0;
-var A = 0;                                 //angle    
-var previous = getTime();
-var MS_PER_UPDATE = 30;                   //Game time update(new frame) is 30 ms
+
+var isOnLimit = true;
+var isOnLimitX = true;
+var isOnLimitY = true;
+var isCaught = false;
+
+var bounds = {};
 var finalState = {};
-var bounds;
-var boundsX;
-var boundsY;
-var banana = false;
-var xBanana = 600;
-var yBanana = 330;
-    
-var a = [];   //acceleration array
- a[1] = {};   //acceleration step 1
- a[2] = {};   //acceleration step 2
- a[3] = {};   //acceleration step 3
- a[4] = {};   //acceleration step 4
+
+var pinkPixel = {};
+pinkPixel.x = 10;
+pinkPixel.y = 0;
+pinkPixel.vx = 0;
+pinkPixel.vy = 0;
+pinkPixel.mass = 4;
+
+var banana = {};
+banana.x = 600;
+banana.y = 330;
+
+var game = {};
+game.dt = 0;
+game.score = 0;
+game.previous = getTime();
+game.MS_PER_UPDATE = 30;
+
+ pinkPixel.a = [];   //acceleration array
+ pinkPixel.a[1] = {};   //acceleration step 1
+ pinkPixel.a[2] = {};   //acceleration step 2
+ pinkPixel.a[3] = {};   //acceleration step 3
+ pinkPixel.a[4] = {};   //acceleration step 4
 
  
 //DOM part
 var el = document.getElementById('pixi');
-
- //Init debug
-console.log('initial position', x);
-console.log('initial velocity', vx);
-console.log('initial position', y);
-console.log('initial velocity', vy);
 
 //Keyboard listeners interface
 var keys = {};
@@ -74,14 +76,14 @@ function pause () {
 //User movement with keyboard
 function userInput() {
 	if (pressed[keys.left] || pressed[keys.right]) {
-	    vx = pressed[keys.left] ? - 100 : 100;
+	    pinkPixel.vx = pressed[keys.left] ? - 100 : 100;
     }
 	if (pressed[keys.up] || pressed[keys.down]) {
-		vy = pressed[keys.down] ? -100 : 100;
+		pinkPixel.vy = pressed[keys.down] ? -100 : 100;
 	} 
 	if (pressed[keys.space]) {
-		vx = vx < 0 ? -100 : 100;
-		vy = 100;
+		pinkPixel.vx = pinkPixel.vx < 0 ? -100 : 100;
+		pinkPixel.vy = 100;
 	} 	
 }
 
@@ -94,10 +96,10 @@ function getTime () {
 
 //Set real new time elapsed : dt
 function getDt () {
-	var current = getTime();				
-	dt = current - previous;
-	dt /= 1000;
-	previous = current;
+	game.current = getTime();				
+	game.dt = game.current - game.previous;
+	game.dt /= 1000;
+	game.previous = game.current;
 }
 
 //Start main loop
@@ -108,30 +110,30 @@ function loop() {
 	userInput();
 	update ();
 	render(); 
-	tid = setTimeout(loop,1000/MS_PER_UPDATE);
+	tid = setTimeout(loop,1000/game.MS_PER_UPDATE);
 }
 
 //Game goes one step further
 function update () {
 	getDt();
-	rk(x,y,vx,vy,dt);
+	rk(pinkPixel.x,pinkPixel.y,pinkPixel.vx,pinkPixel.vy,game.dt);
 	setData();
 	BoundDetector ();
 	bananaDetector ();
 	manageLimits();
-	if (bounds) {
+	if (isOnLimit) {
 	    updateVelocity();
-		rk(x,y,finalState.vxf,finalState.vyf,dt);
-	    bounds = false;
-	    boundsX = false;
-	    boundsY = false;	
+		rk(pinkPixel.x,pinkPixel.y,finalState.vx,finalState.vy,game.dt);
+	    isOnLimit = false;
+	    isOnLimitX = false;
+	    isOnLimitY = false;	
 	    setData();
 	}
-	if (banana) {
+	if (isCaught) {
         scoregame();
 	}
-	console.log('x', x, 'y', y);
-	console.log('xb',xBanana, 'yb',yBanana);
+	console.log('x', pinkPixel.x, 'y', pinkPixel.y);
+	console.log('xb',banana.x, 'yb',banana.y);
 }
 
 //PHYSICS ENGINE
@@ -141,10 +143,10 @@ function update () {
 //Accelerations engine 
 //Returns global acceleration given time step, position and velocity
 function acceleration (x,y,vx,vy,i,dt) {
-	a[i].x = - mass * vx/10 ;        
-	a[i].y = - mass * g;
-	a[i].dt = dt;
-	return a[i];
+	pinkPixel.a[i].x = - pinkPixel.mass * pinkPixel.vx/10 ;        
+	pinkPixel.a[i].y = - pinkPixel.mass * g;
+	pinkPixel.a[i].dt = game.dt;
+	return pinkPixel.a[i];
 }
 
 /*Runge-Kutta Integration engine: returns final position and velocity 
@@ -163,66 +165,66 @@ function rk(x,y,vx,vy,dt) {
 	
 	x2 = x + 0.5 * vx1 * dt;
 	y2 = x + 0.5 * vy1 * dt;
-	vx2 = vx + 0.5 * a[1].x * dt;
-	vy2 = vy + 0.5 * a[1].y * dt;
+	vx2 = vx + 0.5 * pinkPixel.a[1].x * dt;
+	vy2 = vy + 0.5 * pinkPixel.a[1].y * dt;
 	acceleration(x2,y2,vx2,vy2,2,dt/2);
 	
 	x3 = x + 0.5 * vx2 * dt;
 	y3 = y + 0.5 * vy2 * dt;
-	vx3 = vx + 0.5 * a[2].x * dt;
-	vy3 = vy + 0.5 * a[2].y * dt;
+	vx3 = vx + 0.5 * pinkPixel.a[2].x * dt;
+	vy3 = vy + 0.5 * pinkPixel.a[2].y * dt;
 	acceleration(x3,y3,vx3,vy3,3,dt/2);
 	
 	x4 = x + vx3 * dt;
 	y4 = y + vx3 * dt;
-	vx4 = vx + a[3].x * dt;
-	vy4 = vy + a[3].y * dt;
+	vx4 = vx + pinkPixel.a[3].x * dt;
+	vy4 = vy + pinkPixel.a[3].y * dt;
 	acceleration(x4,y4,vx4,vy4,4,dt);
 	
-	finalState.xf = x + (dt/6) * (vx1 + 2 * vx2 + 2 * vx3 + vx4);                 //final position xf, NB: x = dvx/dt
-	finalState.yf = y + (dt/6) * (vy1 + 2 * vy2 + 2 * vy3 + vy4);                 //final position yf, NB: y = dvy/dt
+	finalState.x = x + (dt/6) * (vx1 + 2 * vx2 + 2 * vx3 + vx4);                 //final position x, NB: x = dvx/dt
+	finalState.y = y + (dt/6) * (vy1 + 2 * vy2 + 2 * vy3 + vy4);                 //final position y, NB: y = dvy/dt
 	
-	finalState.vxf = vx + (dt/6) * (a[1].x + 2 * a[2].x + 2 * a[3].x + a[4].x);   //final velocity vxf
-	finalState.vyf = vy + (dt/6) * (a[1].y + 2 * a[2].y + 2 * a[3].y + a[4].y);   //final velocity vyf
+	finalState.vx = vx + (dt/6) * (pinkPixel.a[1].x + 2 * pinkPixel.a[2].x + 2 * pinkPixel.a[3].x + pinkPixel.a[4].x);   //final velocity vx
+	finalState.vy = vy + (dt/6) * (pinkPixel.a[1].y + 2 * pinkPixel.a[2].y + 2 * pinkPixel.a[3].y + pinkPixel.a[4].y);   //final velocity vy
 }
 
 //Asset the new properties of the moving object
 function setData () {
-	x = finalState.xf;
-	y = finalState.yf;
-	vx = finalState.vxf;
-	vy = finalState.vyf;
+	pinkPixel.x = finalState.x;
+	pinkPixel.y = finalState.y;
+	pinkPixel.vx = finalState.vx;
+	pinkPixel.vy = finalState.vy;
 }
 
 //Manage with the limits of the HTML/CSS area
 function manageLimits () {
-	x = Math.min(800,x);
-	x = Math.max(10,x);
-	y = Math.min(560,y);
-	y = Math.max(70,y);
+	pinkPixel.x = Math.min(800,pinkPixel.x);
+	pinkPixel.x = Math.max(10,pinkPixel.x);
+	pinkPixel.y = Math.min(560,pinkPixel.y);
+	pinkPixel.y = Math.max(70,pinkPixel.y);
 }
 
 //COLLISION DETECTION
 
 //Detection of collision against bounds
 function BoundDetector () {
-	if (finalState.xf >= 800 || finalState.xf <= 10) {
-		bounds = boundsX = true;
+	if (finalState.x >= 800 || finalState.x <= 10) {
+		isOnLimit = isOnLimitX = true;
 	}
-	if (finalState.yf >= 560 || finalState.yf <= 70) {
-		bounds = boundsY =  true;
+	if (finalState.y >= 560 || finalState.y <= 70) {
+		isOnLimit = isOnLimitY =  true;
 	}
 }
 
 //detect if collision with the objective
 function bananaDetector () {
-	var topBanana = yBanana;
-	var botBanana = yBanana - 30;
-	var leftBanana = xBanana;
-	var rightBanana = xBanana + 30;
-	if (y <= topBanana + 20 && y >= botBanana - 20 &&
-    	x >= leftBanana - 20 && x <= rightBanana + 20) {
-		banana = true;
+	banana.top = banana.y;
+	banana.bottom = banana.y - 30;
+	banana.left = banana.x;
+	banana.right = banana.y + 30;
+	if (pinkPixel.y <= banana.top + 20 && pinkPixel.y >= banana.bottom - 20 &&
+    	pinkPixel.x >= banana.left - 20 && pinkPixel.x <= banana.right + 20) {
+		isCaught = true;
 	}
 }
 
@@ -235,21 +237,21 @@ function restitution (v) {
 
 //Set new velocities after collision choc
 function updateVelocity() {
-	if (boundsY) {
-	    finalState.vxf = finalState.vxf;
- 	    finalState.vyf = restitution(finalState.vyf);
+	if (isOnLimitX) {
+ 	    finalState.vx = restitution(finalState.vx);
+	    finalState.vy = finalState.vy;
 	}
-	if (boundsX) {
- 	    finalState.vxf = restitution(finalState.vxf);
-	    finalState.vyf = finalState.vyf;
+	if (isOnLimitY) {
+	    finalState.vx = finalState.vx;
+ 	    finalState.vy = restitution(finalState.vy);
 	}
 }
 
 //add score game
 function scoregame() {
-	if (banana) {
-		score += 1;
-		console.log('scores',score);
+	if (isCaught) {
+		game.score += 1;
+		console.log('scores',game.score);
 	}
 }
 
@@ -262,27 +264,27 @@ function myRandom(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function updateBanana () {
-	    banana = false;
-        xBanana = myRandom(10,800);
-        yBanana = myRandom(70,560);
-        var el2 = document.getElementById('banana');
-	    el2.style.left = xBanana  + 'px';
-	    el2.style.bottom = yBanana + 'px';
+function updatePositionBanana () {
+	    isCaught = false;
+        banana.x = myRandom(10,800);
+        banana.y = myRandom(70,560);
 }
 
 //Draws the game 
 function render () {
-	el.style.left = x + 'px';  
-	el.style.bottom = y + 'px';
-	if (banana) {
-	    updateBanana();
-	    console.log('scorer', score);
+	var el2 = document.getElementById('banana');
+	el.style.left = pinkPixel.x + 'px';  
+	el.style.bottom = pinkPixel.y + 'px';
+	if (isCaught) {
+	    updateRendererBanana();
+	    el2.style.left = banana.x  + 'px';
+	    el2.style.bottom = banana.y + 'px';
+	    console.log('scorer', game.score);
 	}
 }
 
 //Final debug
-console.log('final x', finalState.xf);
-console.log('final v', finalState.vxf);
-console.log('final x', finalState.yf);
-console.log('final v', finalState.vyf);
+console.log('final x', finalState.x);
+console.log('final v', finalState.vx);
+console.log('final x', finalState.y);
+console.log('final v', finalState.vy);
