@@ -3,24 +3,42 @@
 var tid;                                 //timer id
 var g = 9.81;                            //gravity
 
-var isOnLimit = true;
-var isOnLimitX = true;
-var isOnLimitY = true;
+var isOnBound = true;
+var isOnBoundX = true;
+var isOnBoundY = true;
 var isCaught = false;
 
 var bounds = {};
+bounds.xMax = 800;
+bounds.xMin = 0;
+bounds.yMax = 560;
+bounds.yMin = 0;
+
 var finalState = {};
 
 var pinkPixel = {};
-pinkPixel.x = 10;
+pinkPixel.h = 30;
+pinkPixel.w = 30;
+
+pinkPixel.x = 0;
 pinkPixel.y = 0;
 pinkPixel.vx = 0;
 pinkPixel.vy = 0;
+
 pinkPixel.mass = 4;
+
 
 var banana = {};
 banana.x = 600;
 banana.y = 330;
+
+banana.h = 30;
+banana.w = 30;
+
+banana.top = banana.y + banana.h;
+banana.bottom = banana.y;
+banana.left = banana.x;
+banana.right = banana.x + banana.w;
 
 var game = {};
 game.dt = 0;
@@ -28,15 +46,16 @@ game.score = 0;
 game.previous = getTime();
 game.MS_PER_UPDATE = 30;
 
- pinkPixel.a = [];   //acceleration array
- pinkPixel.a[1] = {};   //acceleration step 1
- pinkPixel.a[2] = {};   //acceleration step 2
- pinkPixel.a[3] = {};   //acceleration step 3
- pinkPixel.a[4] = {};   //acceleration step 4
+pinkPixel.a = [];   //acceleration array
+pinkPixel.a[1] = {};   //acceleration step 1
+pinkPixel.a[2] = {};   //acceleration step 2
+pinkPixel.a[3] = {};   //acceleration step 3
+pinkPixel.a[4] = {};   //acceleration step 4
 
  
 //DOM part
-var el = document.getElementById('pixi');
+var el = document.getElementById('pinkPixel');
+var el2 = document.getElementById('banana');
 
 //Keyboard listeners interface
 var keys = {};
@@ -51,7 +70,7 @@ pressed[keys.left]  = false;
 pressed[keys.up]    = false;
 pressed[keys.right] = false;
 pressed[keys.down]  = false;
-pressed[keys.space]  = false;
+pressed[keys.space] = false;
 
 document.addEventListener('keydown', function (e) {
 	pressed[e.which] = true;
@@ -120,20 +139,22 @@ function update () {
 	setData();
 	BoundDetector ();
 	bananaDetector ();
-	manageLimits();
-	if (isOnLimit) {
+	manageBounds();
+	if (isOnBound) {
 	    updateVelocity();
 		rk(pinkPixel.x,pinkPixel.y,finalState.vx,finalState.vy,game.dt);
-	    isOnLimit = false;
-	    isOnLimitX = false;
-	    isOnLimitY = false;	
+	    isOnBound = false;
+	    isOnBoundX = false;
+	    isOnBoundY = false;	
 	    setData();
 	}
 	if (isCaught) {
         scoregame();
+		updatePositionBanana();
 	}
-	console.log('x', pinkPixel.x, 'y', pinkPixel.y);
-	console.log('xb',banana.x, 'yb',banana.y);
+	
+	    console.log("tb",banana.top,'bb',banana.bottom,'lb', banana.left,'rb', banana.right);
+	    console.log("t",pinkPixel.top,'b',pinkPixel.bottom,'l', pinkPixel.left,'r', pinkPixel.right);
 }
 
 //PHYSICS ENGINE
@@ -194,38 +215,44 @@ function setData () {
 	pinkPixel.y = finalState.y;
 	pinkPixel.vx = finalState.vx;
 	pinkPixel.vy = finalState.vy;
+	
+    pinkPixel.top = pinkPixel.y + pinkPixel.h;
+    pinkPixel.bottom = pinkPixel.y;
+    pinkPixel.left = pinkPixel.x;
+    pinkPixel.right = pinkPixel.x + pinkPixel.w;
 }
 
-//Manage with the limits of the HTML/CSS area
-function manageLimits () {
-	pinkPixel.x = Math.min(800,pinkPixel.x);
-	pinkPixel.x = Math.max(10,pinkPixel.x);
-	pinkPixel.y = Math.min(560,pinkPixel.y);
-	pinkPixel.y = Math.max(70,pinkPixel.y);
+//Manage with the Bounds of the HTML/CSS area
+function manageBounds () {
+	pinkPixel.x = Math.min(bounds.xMax - pinkPixel.w, pinkPixel.x);
+	pinkPixel.x = Math.max(bounds.xMin, pinkPixel.x);
+	pinkPixel.y = Math.min(bounds.yMax - pinkPixel.h, pinkPixel.y);
+	pinkPixel.y = Math.max(bounds.yMin, pinkPixel.y);
 }
 
 //COLLISION DETECTION
 
 //Detection of collision against bounds
 function BoundDetector () {
-	if (finalState.x >= 800 || finalState.x <= 10) {
-		isOnLimit = isOnLimitX = true;
+	if (pinkPixel.right >= bounds.xMax || pinkPixel.left <= bounds.xMin) {
+		isOnBound = isOnBoundX = true;
 	}
-	if (finalState.y >= 560 || finalState.y <= 70) {
-		isOnLimit = isOnLimitY =  true;
+	if (pinkPixel.top >= bounds.yMax || pinkPixel.bottom <= bounds.yMin) {
+		isOnBound = isOnBoundY =  true;
 	}
 }
 
 //detect if collision with the objective
 function bananaDetector () {
-	banana.top = banana.y;
-	banana.bottom = banana.y - 30;
-	banana.left = banana.x;
-	banana.right = banana.y + 30;
-	if (pinkPixel.y <= banana.top + 20 && pinkPixel.y >= banana.bottom - 20 &&
-    	pinkPixel.x >= banana.left - 20 && pinkPixel.x <= banana.right + 20) {
+	
+	console.log('caught', isCaught);
+	if (pinkPixel.bottom < banana.top && pinkPixel.top > banana.bottom
+     && pinkPixel.right > banana.left && pinkPixel.left < banana.right ) {
 		isCaught = true;
+	} else 	{
+	    isCaught = false;
 	}
+	console.log('caught', isCaught);
 }
 
 
@@ -237,11 +264,11 @@ function restitution (v) {
 
 //Set new velocities after collision choc
 function updateVelocity() {
-	if (isOnLimitX) {
+	if (isOnBoundX) {
  	    finalState.vx = restitution(finalState.vx);
 	    finalState.vy = finalState.vy;
 	}
-	if (isOnLimitY) {
+	if (isOnBoundY) {
 	    finalState.vx = finalState.vx;
  	    finalState.vy = restitution(finalState.vy);
 	}
@@ -256,28 +283,29 @@ function scoregame() {
 }
 
 //Update banana state
-
 // Returns a random integer between min (included) and max (included)
-// Using Math.round() will give you a non-uniform distribution!
 
 function myRandom(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+//Update banana position
 function updatePositionBanana () {
 		if (isCaught) {
 	        isCaught = false;
-            banana.x = myRandom(10,800);
-            banana.y = myRandom(70,560);
+            banana.x = myRandom(bounds.xMin,bounds.xMax - banana.w);
+            banana.y = myRandom(bounds.yMin,bounds.yMax - banana.h);
 		}
+		banana.top = banana.y + banana.h;
+        banana.bottom = banana.y;
+        banana.left = banana.x;
+        banana.right = banana.x + banana.w;
 }
 
 //Draws the game 
 function render () {
-	var el2 = document.getElementById('banana');
 	el.style.left = pinkPixel.x + 'px';  
 	el.style.bottom = pinkPixel.y + 'px';
-	updatePositionBanana();
 	el2.style.left = banana.x  + 'px';
 	el2.style.bottom = banana.y + 'px';
 	console.log('scorer', game.score);
