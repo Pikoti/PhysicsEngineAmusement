@@ -1,5 +1,5 @@
-# Basic-physics-engine-amusement
-Basic physics engine with collisions
+# PhysicsEngineAmusement
+Little physics engine with collisions
 
 *Index of files* </br>
 Integration only:</br>
