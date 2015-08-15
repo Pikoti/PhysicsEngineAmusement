@@ -47,33 +47,32 @@ var a = [];   //acceleration array
 
 //acceleration function return the acceleration for a timestep, position and velocity
 function acceleration (x,v,i,dt) {
-	a[i].x = -g * x - mass * v;        //randomly set for tests
-	return dt;
+    a[i].x = -g * x - mass * v;        //randomly set for tests
+    return dt;
 }
 
 //return final position and velocity after time dt
 function rk(x,v,dt) {
-	var x1,x2,x3,x4;        //the x position of the 4 steps 
-	var v1,v2,v3,v4;        //the velocity of the 4 steps
+    var x1,x2,x3,x4;        //the x position of the 4 steps 
+    var v1,v2,v3,v4;        //the velocity of the 4 steps
 	
-	x1 = x;
-	v1 = v;
-	acceleration(x1,v1,1,0);    //init dt = 0 
+    x1 = x;
+    v1 = v;
+    acceleration(x1,v1,1,0);    //init dt = 0 
 	
+    x2 = x + 0.5 * v1 * dt;
+    v2 = v + 0.5 * a[1].x * dt;
+    acceleration(x2,v2,2,dt/2);
 	
-	x2 = x + 0.5 * v1 * dt;
-	v2 = v + 0.5 * a[1].x * dt;
-	acceleration(x2,v2,2,dt/2);
-	
-	x3 = x + 0.5 * v2 * dt;
-	v3 = v + 0.5 * a[2].x * dt;
+    x3 = x + 0.5 * v2 * dt;
+    v3 = v + 0.5 * a[2].x * dt;
     acceleration(x3,v3,3,dt/2);
 	
-	x4 = x + v3 * dt;
-	v4 = v + a[3].x * dt;
-	acceleration(x4,v4,4,dt);
+    x4 = x + v3 * dt;
+    v4 = v + a[3].x * dt;
+    acceleration(x4,v4,4,dt);
 
-	finalState.xf = x + (dt/6) * (v1 + 2 * v2 + 2 * v3 + v4 ); //final position xf, NB: x = dv/dt
+    finalState.xf = x + (dt/6) * (v1 + 2 * v2 + 2 * v3 + v4 ); //final position xf, NB: x = dv/dt
     finalState.vf = v + (dt/6) * (a[1].x + 2 * a[2].x + 2 * a[3].x + a[4].x); //final velocity vf
 }
 
