@@ -152,9 +152,6 @@ function update () {
         scoregame();
 		updatePositionBanana();
 	}
-	
-	    console.log("tb",banana.top,'bb',banana.bottom,'lb', banana.left,'rb', banana.right);
-	    console.log("t",pinkPixel.top,'b',pinkPixel.bottom,'l', pinkPixel.left,'r', pinkPixel.right);
 }
 
 //PHYSICS ENGINE
@@ -252,7 +249,6 @@ function bananaDetector () {
 	} else 	{
 	    isCaught = false;
 	}
-	console.log('caught', isCaught);
 }
 
 
@@ -278,7 +274,6 @@ function updateVelocity() {
 function scoregame() {
 	if (isCaught) {
 		game.score += 1;
-		console.log('scores',game.score);
 	}
 }
 
@@ -308,7 +303,6 @@ function render () {
 	el.style.bottom = pinkPixel.y + 'px';
 	el2.style.left = banana.x  + 'px';
 	el2.style.bottom = banana.y + 'px';
-	console.log('scorer', game.score);
 }
 
 //Final debug
