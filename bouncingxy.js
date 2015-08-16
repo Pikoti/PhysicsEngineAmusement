@@ -284,9 +284,9 @@ function myRandom(min, max) {
 //Update banana position
 function updatePositionBanana () {
     if (isCaught) {
-            isCaught = false;
-            banana.x = myRandom(bounds.xMin,bounds.xMax - banana.w);
-            banana.y = myRandom(bounds.yMin,bounds.yMax - banana.h);
+        isCaught = false;
+        banana.x = myRandom(bounds.xMin,bounds.xMax - banana.w);
+        banana.y = myRandom(bounds.yMin,bounds.yMax - banana.h);
     }
     banana.top = banana.y + banana.h;
     banana.bottom = banana.y;
