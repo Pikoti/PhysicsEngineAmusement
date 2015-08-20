@@ -28,17 +28,17 @@ pinkPixel.vy = 0;
 pinkPixel.mass = 4;
 
 
-var banana = {};
-banana.x = 600;
-banana.y = 330;
+var bluePixel = {};
+bluePixel.x = 600;
+bluePixel.y = 330;
 
-banana.h = 30;
-banana.w = 30;
+bluePixel.h = 30;
+bluePixel.w = 30;
 
-banana.top = banana.y + banana.h;
-banana.bottom = banana.y;
-banana.left = banana.x;
-banana.right = banana.x + banana.w;
+bluePixel.top = bluePixel.y + bluePixel.h;
+bluePixel.bottom = bluePixel.y;
+bluePixel.left = bluePixel.x;
+bluePixel.right = bluePixel.x + bluePixel.w;
 
 var game = {};
 game.dt = 0;
@@ -55,7 +55,7 @@ pinkPixel.a[4] = {};   //acceleration step 4
  
 //DOM part
 var el = document.getElementById('pinkPixel');
-var el2 = document.getElementById('banana');
+var el2 = document.getElementById('bluePixel');
 
 //Keyboard listeners interface
 var keys = {};
@@ -108,12 +108,12 @@ function userInput() {
 
 //LOGIC OF THE GAME
 
-//Get real new time
+//Get new time
 function getTime () {
     return +new Date;
 }
 
-//Set real new time elapsed : dt
+//Set time elapsed : dt
 function getDt () {
     game.current = getTime();				
     game.dt = game.current - game.previous;
@@ -135,22 +135,21 @@ function loop() {
 //Game goes one step further
 function update () {
     getDt();
-    rk(pinkPixel.x,pinkPixel.y,pinkPixel.vx,pinkPixel.vy,game.dt);
+    RungeKuttaIntegrate(pinkPixel.x,pinkPixel.y,pinkPixel.vx,pinkPixel.vy,game.dt);
     setData();
     BoundDetector ();
-    bananaDetector ();
+    bluePixelDetector ();
     manageBounds();
     if (isOnBound) {
         updateVelocity();
-        rk(pinkPixel.x,pinkPixel.y,finalState.vx,finalState.vy,game.dt);
+        RungeKuttaIntegrate(pinkPixel.x,pinkPixel.y,finalState.vx,finalState.vy,game.dt);
         isOnBound = false;
         isOnBoundX = false;
         isOnBoundY = false;	
         setData();
     }
     if (isCaught) {
-        scoregame();
-        updatePositionBanana();
+        updatePositionBluePixel();
     }
 }
 
@@ -169,7 +168,7 @@ function acceleration (x,y,vx,vy,i,dt) {
 
 /*Runge-Kutta Integration engine: returns final position and velocity 
 given initial state and elapsed time dt*/
-function rk(x,y,vx,vy,dt) {
+function RungeKuttaIntegrate(x,y,vx,vy,dt) {
     var x1,x2,x3,x4;           //the x position of the 4 steps 
     var vx1,vx2,vx3,vx4;       //the vx velocity of the 4 steps
     var y1,y2,y3,y4;           //the y position of the 4 steps 
@@ -240,8 +239,8 @@ function BoundDetector () {
 }
 
 //detect if collision with the objective
-function bananaDetector () {
-    if (pinkPixel.bottom < banana.top && pinkPixel.top > banana.bottom && pinkPixel.right > banana.left && pinkPixel.left < banana.right ) {
+function bluePixelDetector () {
+    if (pinkPixel.bottom < bluePixel.top && pinkPixel.top > bluePixel.bottom && pinkPixel.right > bluePixel.left && pinkPixel.left < bluePixel.right ) {
         isCaught = true;
     } else {
         isCaught = false;
@@ -267,37 +266,30 @@ function updateVelocity() {
     }
 }
 
-//add score game
-function scoregame() {
-    if (isCaught) {
-        game.score += 1;
-    }
-}
-
-//Update banana state
+//Update bluePixel state
 // Returns a random integer between min (included) and max (included)
 
 function myRandom(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-//Update banana position
-function updatePositionBanana () {
+//Update bluePixel position
+function updatePositionBluePixel () {
     if (isCaught) {
         isCaught = false;
-        banana.x = myRandom(bounds.xMin,bounds.xMax - banana.w);
-        banana.y = myRandom(bounds.yMin,bounds.yMax - banana.h);
+        bluePixel.x = myRandom(bounds.xMin,bounds.xMax - bluePixel.w);
+        bluePixel.y = myRandom(bounds.yMin,bounds.yMax - bluePixel.h);
     }
-    banana.top = banana.y + banana.h;
-    banana.bottom = banana.y;
-    banana.left = banana.x;
-    banana.right = banana.x + banana.w;
+    bluePixel.top = bluePixel.y + bluePixel.h;
+    bluePixel.bottom = bluePixel.y;
+    bluePixel.left = bluePixel.x;
+    bluePixel.right = bluePixel.x + bluePixel.w;
 }
 
 //Draws the game 
 function render () {
     el.style.left = pinkPixel.x + 'px';  
     el.style.bottom = pinkPixel.y + 'px';
-    el2.style.left = banana.x  + 'px';
-    el2.style.bottom = banana.y + 'px';
+    el2.style.left = bluePixel.x  + 'px';
+    el2.style.bottom = bluePixel.y + 'px';
 }
